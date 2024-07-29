@@ -1,0 +1,71 @@
+<%layout("/layouts/boilerplates")%>
+<body>
+    <div class="row">
+        <div class="col-8 offset-2">
+            <br><br>
+            <h2>Create a new listings</h2>
+            <br>
+            <form method="POST" action="/listings">
+                <div class="mb-3">
+                    <label for="title" class="from-label">Title</label>
+                    <input 
+                        name="listing[title]" 
+                        placeholder="Add a Catchy Title" 
+                        type="text" 
+                        class="form-control"
+                    >
+                </div>
+                <div class="mb-3">
+                    <label for="description" class="from-label">Description</label>
+                    <textarea 
+                        name="listing[description]" 
+                        id="" 
+                        placeholder="enter a description"
+                        class="form-control">
+                    </textarea>
+                </div>
+                <div class="mb-3">
+                    <label for="image" class="from-label">Image Url</label>
+                    <input 
+                        name="listing[image]" 
+                        placeholder="enter image URL/link" 
+                        type="text"
+                        class="form-control"
+                    >
+                </div>
+                <div class="row">
+                    <div class="mb-3 col-md-4">
+                        <label for="price" class="from-label">Price</label>
+                        <input 
+                            name="listing[price]" 
+                            placeholder="1200" 
+                            type="text"
+                            class="form-control"
+                        >
+                    </div>
+                    <div class="mb-3 col-md-8">
+                        <label for="country" class="from-label">Country</label>
+                        <input 
+                            name="listing[country]" 
+                            placeholder="India" 
+                            type="text" 
+                            class="form-control"
+                        >
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="location" class="from-label">Location</label>
+                    <input 
+                        name="listing[location]" 
+                        placeholder="Jaipur, Rajashthan" 
+                        type="text"
+                        class="form-control"
+                    >
+                </div>
+                <button class="btn btn-dark add-btn">Add</button>
+                <br><br>
+            </form>
+        </div>
+    </div>
+</body>
