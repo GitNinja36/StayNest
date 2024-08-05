@@ -35,11 +35,20 @@ app.engine('ejs', ejsMate);
 //for requiring static files from public folder
 app.use(express.static(path.join(__dirname, "/public")));
 
+//for requiring wrapAsync function from different file
+const warpAsync = require("./util/wrapasync.js");
+
+
+//for requiring expressError function from different file
+const expressError = require("./util/expressError.js");
+
+
 //Index Route
-app.get("/listings", async (req, res)=>{
+app.get("/listings", warpAsync(async (req, res)=>{
     const allListings = await Listing.find({});
     res.render("listings/index.ejs", { allListings });
-});
+})
+);
 
 //New Route
 app.get("/listings/new", (req, res)=>{
@@ -47,41 +56,66 @@ app.get("/listings/new", (req, res)=>{
 });
 
 //Show Route
-app.get("/listings/:id", async(req, res)=>{
+app.get("/listings/:id", warpAsync(async(req, res)=>{
     let{ id } = req.params;
     const listing = await Listing.findById(id);
     res.render("listings/show.ejs", { listing });
-});
+})
+);
 
 //Create Route
-app.post("/listings", async(req, res)=>{
+app.post("/listings", warpAsync(async(req, res, next)=>{
     // let { title, description, image, price, country, location } = req.body;
+    //if listing is empty or wrong then expressError function will send either custom message or default message with custom or default code    
+    if(!req.body.listing){
+        throw new expressError(400, "send valid listing");
+    };
     const newListings =  Listing(req.body.listing);
     await newListings.save();
     res.redirect("/listings");
-}); 
+    })
+); 
 
 //Edit Route
-app.get("/listings/:id/edit", async(req, res)=>{
+app.get("/listings/:id/edit", warpAsync(async(req, res)=>{
     let { id } = req.params;
     const listing = await Listing.findById(id);
     res.render("listings/edit.ejs", { listing });
-});
+})
+);
 
 //Update Route
-app.put("/listings/:id", async(req, res)=>{
+app.put("/listings/:id", warpAsync(async(req, res)=>{
+    if(!req.body.listing){
+        throw new expressError(400, "send valid listing");
+    };
     let { id } = req.params;
     await Listing.findByIdAndUpdate(id, { ...req.body.listing });
     res.redirect(`/listings`);
-});
+})
+);
 
 //DELETE Route
-app.delete("/listings/:id", async(req, res)=>{
+app.delete("/listings/:id", warpAsync(async(req, res)=>{
     let { id } = req.params;
     const deletedListing = await Listing.findByIdAndDelete(id);
     console.log(deletedListing);
     res.redirect("/listings");
+})
+);
+
+
+app.all("*", (req, res, next)=>{
+    next(new expressError(404, "page not found"));
 });
+
+//Error Route for catching error form route and from listings
+app.use((err, req, res, next)=>{
+    let {statusCode = 404, message = "Something went wrong"} = err;
+    res.render("error.ejs", {message})
+    // res.status(statusCode).send(message);
+});
+
 
 app.get("/", (req, res)=>{
     res.send("this route is working");

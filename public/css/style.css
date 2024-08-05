@@ -2,7 +2,7 @@
     font-family: "Plus Jakarta Sans", sans-serif !important;
     display: flex;
     flex-direction: column;
-    min-height: 100vh;
+    min-height: 100%;
 }
 .container{
     flex: 1;
@@ -50,7 +50,9 @@
     justify-content: center;
     align-items: space-evenly;
 }
-
+/* .footer{
+    position: sticky !important;
+} */
 /* cards */
 .card {
     border: none !important;
