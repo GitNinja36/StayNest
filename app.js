@@ -42,6 +42,9 @@ const warpAsync = require("./util/wrapasync.js");
 //for requiring expressError function from different file
 const expressError = require("./util/expressError.js");
 
+//for requiring schemaValid function from different file
+const {listingSchema} = require("./schema.js"); 
+
 
 //Index Route
 app.get("/listings", warpAsync(async (req, res)=>{
@@ -49,6 +52,17 @@ app.get("/listings", warpAsync(async (req, res)=>{
     res.render("listings/index.ejs", { allListings });
 })
 );
+
+//validation for schema
+const validateListing = (req, res, next)=>{
+    let {error} = listingSchema.validate(req.body);
+    if(error){
+        let errMsg = error.details.map((el)=>el.message).join(",");
+        throw new expressError(400, errMsg);
+    }else{
+        next();
+    }
+}
 
 //New Route
 app.get("/listings/new", (req, res)=>{
@@ -64,12 +78,7 @@ app.get("/listings/:id", warpAsync(async(req, res)=>{
 );
 
 //Create Route
-app.post("/listings", warpAsync(async(req, res, next)=>{
-    // let { title, description, image, price, country, location } = req.body;
-    //if listing is empty or wrong then expressError function will send either custom message or default message with custom or default code    
-    if(!req.body.listing){
-        throw new expressError(400, "send valid listing");
-    };
+app.post("/listings",validateListing, warpAsync(async(req, res, next)=>{    
     const newListings =  Listing(req.body.listing);
     await newListings.save();
     res.redirect("/listings");
@@ -85,7 +94,7 @@ app.get("/listings/:id/edit", warpAsync(async(req, res)=>{
 );
 
 //Update Route
-app.put("/listings/:id", warpAsync(async(req, res)=>{
+app.put("/listings/:id",validateListing, warpAsync(async(req, res)=>{
     if(!req.body.listing){
         throw new expressError(400, "send valid listing");
     };
@@ -112,7 +121,7 @@ app.all("*", (req, res, next)=>{
 //Error Route for catching error form route and from listings
 app.use((err, req, res, next)=>{
     let {statusCode = 404, message = "Something went wrong"} = err;
-    res.render("error.ejs", {message})
+    res.status(statusCode).render("error.ejs", {message})
     // res.status(statusCode).send(message);
 });
 
