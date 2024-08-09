@@ -60,7 +60,7 @@ const validateListing = (req, res, next)=>{
         let errMsg = error.details.map((el)=>el.message).join(",");
         throw new expressError(400, errMsg);
     }else{
-        next();
+        next(error);
     }
 }
 
@@ -95,12 +95,12 @@ app.get("/listings/:id/edit", warpAsync(async(req, res)=>{
 
 //Update Route
 app.put("/listings/:id",validateListing, warpAsync(async(req, res)=>{
-    if(!req.body.listing){
+    if(!(req.body.listing)){
         throw new expressError(400, "send valid listing");
     };
     let { id } = req.params;
     await Listing.findByIdAndUpdate(id, { ...req.body.listing });
-    res.redirect(`/listings`);
+    res.redirect("/listings");
 })
 );
 
@@ -120,8 +120,8 @@ app.all("*", (req, res, next)=>{
 
 //Error Route for catching error form route and from listings
 app.use((err, req, res, next)=>{
-    let {statusCode = 404, message = "Something went wrong"} = err;
-    res.status(statusCode).render("error.ejs", {message})
+        let {statusCode = 404, message = "Something went wrong"} = err;
+        res.status(statusCode).render("error.ejs", {message});
     // res.status(statusCode).send(message);
 });
 
