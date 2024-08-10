@@ -79,7 +79,7 @@ app.get("/listings/:id", warpAsync(async(req, res)=>{
 
 //Create Route
 app.post("/listings",validateListing, warpAsync(async(req, res, next)=>{    
-    const newListings =  Listing(req.body.listing);
+    const newListings = new Listing(req.body.listing);
     await newListings.save();
     res.redirect("/listings");
     })
@@ -95,12 +95,12 @@ app.get("/listings/:id/edit", warpAsync(async(req, res)=>{
 
 //Update Route
 app.put("/listings/:id",validateListing, warpAsync(async(req, res)=>{
-    if(!(req.body.listing)){
+    if(!req.body.listing){
         throw new expressError(400, "send valid listing");
     };
     let { id } = req.params;
     await Listing.findByIdAndUpdate(id, { ...req.body.listing });
-    res.redirect("/listings");
+    res.redirect(`/listings/${id}`);
 })
 );
 
@@ -122,7 +122,7 @@ app.all("*", (req, res, next)=>{
 app.use((err, req, res, next)=>{
         let {statusCode = 404, message = "Something went wrong"} = err;
         res.status(statusCode).render("error.ejs", {message});
-    // res.status(statusCode).send(message);
+        // res.status(statusCode).send(message);
 });
 
 
