@@ -43,8 +43,10 @@ const warpAsync = require("./util/wrapasync.js");
 const expressError = require("./util/expressError.js");
 
 //for requiring schemaValid function from different file
-const {listingSchema} = require("./schema.js"); 
+const {listingSchema, reviewSchema} = require("./schema.js"); 
 
+//for requiring Review route
+const reviews = require("./models/review.js");
 
 //Index Route
 app.get("/listings", warpAsync(async (req, res)=>{
@@ -64,6 +66,16 @@ const validateListing = (req, res, next)=>{
     }
 }
 
+const validateReview = (req, res, next)=>{
+    let {error} = reviewSchema.validate(req.body);
+    if(error){
+        let errMsg = error.details.map((el)=>el.message).join(",");
+        throw new expressError(400, errMsg);
+    }else{
+        next(error);
+    }
+}
+
 //New Route
 app.get("/listings/new", (req, res)=>{
     res.render("listings/new.ejs");
@@ -71,8 +83,8 @@ app.get("/listings/new", (req, res)=>{
 
 //Show Route
 app.get("/listings/:id", warpAsync(async(req, res)=>{
-    let{ id } = req.params;
-    const listing = await Listing.findById(id);
+    let { id } = req.params;
+    const listing = await Listing.findById(id).populate("reviews");
     res.render("listings/show.ejs", { listing });
 })
 );
@@ -113,6 +125,26 @@ app.delete("/listings/:id", warpAsync(async(req, res)=>{
 })
 );
 
+//Review Route 
+//post Route
+app.post("/listings/:id/reviews", warpAsync(async(req, res)=>{
+    let listing = await Listing.findById(req.params.id);
+    let newReviews = new reviews(req.body.Review);
+
+    listing.reviews.push(newReviews);
+    await newReviews.save();
+    await listing.save();
+    res.redirect(`/listings/${listing._id}`);
+
+}));
+
+//Delete Route
+app.delete("/listings/:id/reviews/:reviewId",warpAsync(async(req, res)=>{
+    let { id, reviewId } = req.params;
+    await reviews.findByIdAndUpdate(id, {$pull:{reviews: reviewId}});
+    await reviews.findByIdAndDelete(reviewId);
+    res.redirect(`/listings/${id}`);
+}));
 
 app.all("*", (req, res, next)=>{
     next(new expressError(404, "page not found"));
