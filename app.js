@@ -48,23 +48,9 @@ const {listingSchema, reviewSchema} = require("./schema.js");
 //for requiring Review route
 const reviews = require("./models/review.js");
 
-//Index Route
-app.get("/listings", warpAsync(async (req, res)=>{
-    const allListings = await Listing.find({});
-    res.render("listings/index.ejs", { allListings });
-})
-);
+//
+const listings = require("./routes/listing.js");
 
-//validation for schema
-const validateListing = (req, res, next)=>{
-    let {error} = listingSchema.validate(req.body);
-    if(error){
-        let errMsg = error.details.map((el)=>el.message).join(",");
-        throw new expressError(400, errMsg);
-    }else{
-        next(error);
-    }
-}
 
 const validateReview = (req, res, next)=>{
     let {error} = reviewSchema.validate(req.body);
@@ -76,54 +62,8 @@ const validateReview = (req, res, next)=>{
     }
 }
 
-//New Route
-app.get("/listings/new", (req, res)=>{
-    res.render("listings/new.ejs");
-});
+app.use("/listings", listings);
 
-//Show Route
-app.get("/listings/:id", warpAsync(async(req, res)=>{
-    let { id } = req.params;
-    const listing = await Listing.findById(id).populate("reviews");
-    res.render("listings/show.ejs", { listing });
-})
-);
-
-//Create Route
-app.post("/listings",validateListing, warpAsync(async(req, res, next)=>{    
-    const newListings = new Listing(req.body.listing);
-    await newListings.save();
-    res.redirect("/listings");
-    })
-); 
-
-//Edit Route
-app.get("/listings/:id/edit", warpAsync(async(req, res)=>{
-    let { id } = req.params;
-    const listing = await Listing.findById(id);
-    res.render("listings/edit.ejs", { listing });
-})
-);
-
-//Update Route
-app.put("/listings/:id",validateListing, warpAsync(async(req, res)=>{
-    if(!req.body.listing){
-        throw new expressError(400, "send valid listing");
-    };
-    let { id } = req.params;
-    await Listing.findByIdAndUpdate(id, { ...req.body.listing });
-    res.redirect(`/listings/${id}`);
-})
-);
-
-//DELETE Route
-app.delete("/listings/:id", warpAsync(async(req, res)=>{
-    let { id } = req.params;
-    const deletedListing = await Listing.findByIdAndDelete(id);
-    console.log(deletedListing);
-    res.redirect("/listings");
-})
-);
 
 //Review Route 
 //post Route
