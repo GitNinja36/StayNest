@@ -36,55 +36,23 @@ app.engine('ejs', ejsMate);
 app.use(express.static(path.join(__dirname, "/public")));
 
 //for requiring wrapAsync function from different file
-const warpAsync = require("./util/wrapasync.js");
+// const warpAsync = require("./util/wrapasync.js");
 
 
 //for requiring expressError function from different file
 const expressError = require("./util/expressError.js");
 
 //for requiring schemaValid function from different file
-const {listingSchema, reviewSchema} = require("./schema.js"); 
-
-//for requiring Review route
-const reviews = require("./models/review.js");
+// const {listingSchema, reviewSchema} = require("./schema.js"); 
 
 //
 const listings = require("./routes/listing.js");
+//
+const reviews = require("./routes/review.js");
 
-
-const validateReview = (req, res, next)=>{
-    let {error} = reviewSchema.validate(req.body);
-    if(error){
-        let errMsg = error.details.map((el)=>el.message).join(",");
-        throw new expressError(400, errMsg);
-    }else{
-        next(error);
-    }
-}
 
 app.use("/listings", listings);
-
-
-//Review Route 
-//post Route
-app.post("/listings/:id/reviews", warpAsync(async(req, res)=>{
-    let listing = await Listing.findById(req.params.id);
-    let newReviews = new reviews(req.body.Review);
-
-    listing.reviews.push(newReviews);
-    await newReviews.save();
-    await listing.save();
-    res.redirect(`/listings/${listing._id}`);
-
-}));
-
-//Delete Route
-app.delete("/listings/:id/reviews/:reviewId",warpAsync(async(req, res)=>{
-    let { id, reviewId } = req.params;
-    await reviews.findByIdAndUpdate(id, {$pull:{reviews: reviewId}});
-    await reviews.findByIdAndDelete(reviewId);
-    res.redirect(`/listings/${id}`);
-}));
+app.use("/listings/:id/reviews", reviews);
 
 app.all("*", (req, res, next)=>{
     next(new expressError(404, "page not found"));

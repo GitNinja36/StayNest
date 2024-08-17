@@ -3,7 +3,8 @@ const router = express.Router();
 
 const warpAsync = require("../util/wrapasync.js");
 const expressError = require("../util/expressError.js");
-const {listingSchema, reviewSchema} = require("../schema.js"); 
+
+const {listingSchema} = require("../schema.js"); 
 const Listing = require("../models/listing.js");
 
 //validation for schema
