@@ -45,6 +45,24 @@ const expressError = require("./util/expressError.js");
 //for requiring schemaValid function from different file
 // const {listingSchema, reviewSchema} = require("./schema.js"); 
 
+//requring express-session
+const session = require('express-session');
+
+//defing sessionOption
+const sessionOptions = {
+    secret: "mysupersecretstring",
+    resave: false,
+    saveUninitialized: true,
+    cookie: { 
+        expire: Date.now() + 7 * 24 * 60 * 60 * 1000,
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+        httpOnly: true,
+        // secure: true 
+    },
+};
+
+app.use(session(sessionOptions));
+
 //
 const listings = require("./routes/listing.js");
 //
