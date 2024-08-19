@@ -14,7 +14,10 @@
 <body>
     <%- include("../inculdes/navbar.ejs") %>
 
-    <div class="container"><%- body %></div>
+    <div class="container">
+        <%- include("../inculdes/flash.ejs") %>
+        <%- body %>
+    </div>
 
     <%- include("../inculdes/footer.ejs") %>
 

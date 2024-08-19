@@ -38,6 +38,7 @@ router.post("/", warpAsync(async(req, res)=>{
         await listing.save();
         // console.log(pr);
 
+    req.flash("success", "New Review Created!");
     res.redirect(`/listings/${listing._id}`);
     // console.log(listing);
 
@@ -48,6 +49,7 @@ router.delete("/:reviewId",warpAsync(async(req, res)=>{
     let { id, reviewId } = req.params;
     await reviews.findByIdAndUpdate(id, {$pull:{reviews: reviewId}});
     await reviews.findByIdAndDelete(reviewId);
+    req.flash("success", "Review Deleted!");
     res.redirect(`/listings/${id}`);
 }));
 

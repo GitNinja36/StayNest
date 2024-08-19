@@ -61,7 +61,23 @@ const sessionOptions = {
     },
 };
 
+//The flash is a special area of the session used for storing messages.
+const flash = require('connect-flash');
+
+
+app.get("/", (req, res)=>{
+    res.send("this route is working");
+});
+
+
 app.use(session(sessionOptions));
+app.use(flash());
+
+app.use((req, res, next)=>{
+    res.locals.success = req.flash("success");
+    res.locals.error = req.flash("error");
+    next();
+});
 
 //
 const listings = require("./routes/listing.js");
@@ -81,9 +97,4 @@ app.use((err, req, res, next)=>{
         let {statusCode = 404, message = "Something went wrong"} = err;
         res.status(statusCode).render("error.ejs", {message});
         // res.status(statusCode).send(message);
-});
-
-
-app.get("/", (req, res)=>{
-    res.send("this route is working");
 });
