@@ -45,6 +45,13 @@ const expressError = require("./util/expressError.js");
 //for requiring schemaValid function from different file
 // const {listingSchema, reviewSchema} = require("./schema.js"); 
 
+
+//connecting the feature of passport 
+const passport = require("passport");
+const LocalStrategy = require("passport-local");
+const User = require("./models/user.js");
+
+
 //requring express-session
 const session = require('express-session');
 
@@ -73,20 +80,47 @@ app.get("/", (req, res)=>{
 app.use(session(sessionOptions));
 app.use(flash());
 
+
+//inetialing the passport sessions
+app.use(passport.initialize());
+app.use(passport.session());
+
+// use static authenticate method of model in LocalStrategy
+passport.use(new LocalStrategy(User.authenticate()));
+
+// use static serialize and deserialize of model for passport session support
+passport.serializeUser(User.serializeUser());  //serialize users into the session
+passport.deserializeUser(User.deserializeUser()); //deserialize users into the session
+
+
 app.use((req, res, next)=>{
     res.locals.success = req.flash("success");
     res.locals.error = req.flash("error");
     next();
 });
 
-//
-const listings = require("./routes/listing.js");
-//
-const reviews = require("./routes/review.js");
+// listing Router (for listing)
+const listingRouter = require("./routes/listing.js");
+// Review Router (for review)
+const reviewRouter = require("./routes/review.js");
+// User Router (for signUp)
+const userRouter = require("./routes/user.js");
 
 
-app.use("/listings", listings);
-app.use("/listings/:id/reviews", reviews);
+// app.get("/demoUser", async(req, res)=>{
+//     let fakeUser = User({
+//         eamil: "abcd@gmail.com",
+//         username: "zexgero",
+//     });
+//     let newUser = await User.register(fakeUser, "123456");
+//     res.send(newUser);
+// });
+
+
+
+app.use("/listings", listingRouter);
+app.use("/listings/:id/reviews", reviewRouter);
+app.use("/", userRouter);
 
 app.all("*", (req, res, next)=>{
     next(new expressError(404, "page not found"));
