@@ -22,7 +22,11 @@ const listingSchema = new Schema({ //defining the schema
             type: Schema.Types.ObjectId,
             ref: "review",
         }
-    ]
+    ],
+    owner: {
+        type: Schema.Types.ObjectId,
+        ref: "User",
+    }
 });
 
 listingSchema.post("findOneAndDelete", async(listing)=>{
