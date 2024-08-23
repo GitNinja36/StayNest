@@ -7,6 +7,9 @@ const expressError = require("../util/expressError.js");
 const {listingSchema} = require("../schema.js"); 
 const Listing = require("../models/listing.js");
 
+//requiring the middleware for loggedin
+const {isLoggedIn} = require("../middleware.js");
+
 //validation for schema
 const validateListing = (req, res, next)=>{
     let {error} = listingSchema.validate(req.body);
@@ -27,7 +30,7 @@ router.get("/", warpAsync(async (req, res)=>{
 );
 
 //New Route
-router.get("/new", (req, res)=>{
+router.get("/new", isLoggedIn, (req, res)=>{
     res.render("listings/new.ejs");
 });
 
@@ -45,7 +48,7 @@ router.get("/:id", warpAsync(async(req, res)=>{
 
 
 //Create Route
-router.post("/",validateListing, warpAsync(async(req, res, next)=>{    
+router.post("/", isLoggedIn, validateListing, warpAsync(async(req, res, next)=>{    
     const newListings = new Listing(req.body.listing);
     await newListings.save();
     req.flash("success", "New Listing Created!");
@@ -54,7 +57,7 @@ router.post("/",validateListing, warpAsync(async(req, res, next)=>{
 ); 
 
 //Edit Route
-router.get("/:id/edit", warpAsync(async(req, res)=>{
+router.get("/:id/edit", isLoggedIn, warpAsync(async(req, res)=>{
     let { id } = req.params;
     const listing = await Listing.findById(id);
     if(!listing){
@@ -66,7 +69,7 @@ router.get("/:id/edit", warpAsync(async(req, res)=>{
 );
 
 //Update Route
-router.put("/:id",validateListing, warpAsync(async(req, res)=>{
+router.put("/:id", isLoggedIn, validateListing, warpAsync(async(req, res)=>{
     if(!req.body.listing){
         throw new expressError(400, "send valid listing");
     };
@@ -78,7 +81,7 @@ router.put("/:id",validateListing, warpAsync(async(req, res)=>{
 );
 
 //DELETE Route
-router.delete("/:id", warpAsync(async(req, res)=>{
+router.delete("/:id", isLoggedIn, warpAsync(async(req, res)=>{
     let { id } = req.params;
     const deletedListing = await Listing.findByIdAndDelete(id);
     console.log(deletedListing);
