@@ -2,28 +2,15 @@ const express = require("express");
 const router = express.Router();
 
 const warpAsync = require("../util/wrapasync.js");
-const expressError = require("../util/expressError.js");
 
-const {listingSchema} = require("../schema.js"); 
 const Listing = require("../models/listing.js");
 
 //requiring the middleware for loggedin
-const {isLoggedIn} = require("../middleware.js");
-
-//validation for schema
-const validateListing = (req, res, next)=>{
-    let {error} = listingSchema.validate(req.body);
-    if(error){
-        let errMsg = error.details.map((el)=>el.message).join(",");
-        throw new expressError(400, errMsg);
-    }else{
-        next(error);
-    }
-}
+const {isLoggedIn, isOwner, validateListing} = require("../middleware.js");
 
 
 //Index Route
-router.get("/", warpAsync(async (req, res)=>{
+router.get("/", warpAsync( async(req, res)=>{
     const allListings = await Listing.find({});
     res.render("listings/index.ejs", { allListings });
 })
@@ -58,7 +45,7 @@ router.post("/", isLoggedIn, validateListing, warpAsync(async(req, res, next)=>{
 ); 
 
 //Edit Route
-router.get("/:id/edit", isLoggedIn, warpAsync(async(req, res)=>{
+router.get("/:id/edit", isLoggedIn, isOwner,  warpAsync(async(req, res)=>{
     let { id } = req.params;
     const listing = await Listing.findById(id);
     if(!listing){
@@ -70,7 +57,7 @@ router.get("/:id/edit", isLoggedIn, warpAsync(async(req, res)=>{
 );
 
 //Update Route
-router.put("/:id", isLoggedIn, validateListing, warpAsync(async(req, res)=>{
+router.put("/:id", isLoggedIn, isOwner, validateListing, warpAsync(async(req, res)=>{
     if(!req.body.listing){
         throw new expressError(400, "send valid listing");
     };
@@ -82,7 +69,7 @@ router.put("/:id", isLoggedIn, validateListing, warpAsync(async(req, res)=>{
 );
 
 //DELETE Route
-router.delete("/:id", isLoggedIn, warpAsync(async(req, res)=>{
+router.delete("/:id", isLoggedIn, isOwner,   warpAsync(async(req, res)=>{
     let { id } = req.params;
     const deletedListing = await Listing.findByIdAndDelete(id);
     console.log(deletedListing);
