@@ -9,12 +9,12 @@ const {listingSchema} = require("../schema.js");
 const reviews = require("../models/review.js");
 const Listing = require("../models/listing.js");
 
-const {validateReview} = require("../middleware.js");
+const {validateReview, isLoggedIn, isReviewAuther} = require("../middleware.js");
 
 
 //Review Route 
 //post Route
-router.post("/", warpAsync(async(req, res)=>{
+router.post("/",isLoggedIn , warpAsync(async(req, res)=>{
     let listing = await Listing.findById(req.params.id);
     console.log("Review Data:", req.body.review);
     
@@ -23,6 +23,7 @@ router.post("/", warpAsync(async(req, res)=>{
     // }
 
     let newReview = new reviews(req.body.review);
+    newReview.author = req.user._id;
     console.log(newReview);
         listing.reviews.push(newReview);
         await newReview.save();
@@ -36,7 +37,7 @@ router.post("/", warpAsync(async(req, res)=>{
 }));
 
 //Delete Route
-router.delete("/:reviewId",warpAsync(async(req, res)=>{
+router.delete("/:reviewId", isLoggedIn, isReviewAuther, warpAsync(async(req, res)=>{
     let { id, reviewId } = req.params;
     await reviews.findByIdAndUpdate(id, {$pull:{reviews: reviewId}});
     await reviews.findByIdAndDelete(reviewId);
