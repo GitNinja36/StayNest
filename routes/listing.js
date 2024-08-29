@@ -8,30 +8,28 @@ const Listing = require("../models/listing.js");
 //requiring the middleware for loggedin
 const {isLoggedIn, isOwner, validateListing} = require("../middleware.js");
 
-
+//requiring the listings.js from controller file for making code more compact 
 const listingController = require("../controller/listings.js");
 
+//router.route(path) its an instance of single route for root route
+router.route("/")
+    .get(warpAsync(listingController.index)) //Index Route
+    .post(isLoggedIn, validateListing, warpAsync(listingController.createListing) //Create Route
+); 
 
-//Index Route
-router.get("/", warpAsync(listingController.index));
 
 //New Route
 router.get("/new", isLoggedIn, listingController.renderNewForm);
 
-//Show Route
-router.get("/:id", warpAsync(listingController.showListing));
+//again router.route(path) its an instance of single route for "/listings/:id" route
+router.route("/:id")
+    .get(warpAsync(listingController.showListing)) //Show Route
+    .put(isLoggedIn, isOwner, validateListing, warpAsync(listingController.udateListing)) //Update Route
+    .delete(isLoggedIn, isOwner, warpAsync(listingController.destroyListing) //DELETE Route
+);
 
-
-//Create Route
-router.post("/", isLoggedIn, validateListing, warpAsync(listingController.createListing)); 
 
 //Edit Route
 router.get("/:id/edit", isLoggedIn, isOwner,  warpAsync(listingController.renderEditRoute));
-
-//Update Route
-router.put("/:id", isLoggedIn, isOwner, validateListing, warpAsync(listingController.udateListing));
-
-//DELETE Route
-router.delete("/:id", isLoggedIn, isOwner, warpAsync(listingController.destroyListing));
 
 module.exports = router;

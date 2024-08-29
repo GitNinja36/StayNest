@@ -5,22 +5,25 @@ const passport = require("passport");
 const { savedRedirectUrl } = require("../middleware.js");
 
 const userController = require("../controller/users.js");
+const { route } = require("./listing.js");
 
-router.get("/signup", userController.renderSignUpForm);
 
-router.post("/signup", wrapasync(userController.signUp));
+//router.route(path) its an instance of single route for Sign Up route
+router.route("/signup")
+    .get(userController.renderSignUpForm)  //for getting Sign up page
+    .post(wrapasync(userController.signUp) //for signup
+);
 
-router.get("/login", userController.renderLogInForm);
-
-router.post(
-    "/login", 
+//router.route(path) its an instance of single route for Log Up route
+router.route("/login")
+.get(userController.renderLogInForm)   //for getting Log In page
+.post(                                 // for login
     savedRedirectUrl,
     passport.authenticate('local', { 
         failureRedirect: '/login', 
         failureFlash: true 
     }), userController.logIn
-);
-
+); 
 
 router.get("/logout", userController.logOut);
 
