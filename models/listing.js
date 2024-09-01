@@ -9,10 +9,8 @@ const listingSchema = new Schema({ //defining the schema
     },
     description: String,
     image: {
-            type: String,
-            set: (v) => v === ""
-            ? "https://images.unsplash.com/photo-1721804975881-1768e59f46cb?q=80&w=2574&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" 
-            : v,
+            url: String,
+            filename: String,
         },
     price: Number,
     location: String,

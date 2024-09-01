@@ -19,7 +19,7 @@ async function main() {
 //now for inserting data in wanderLust 
 const initDB = async () =>{
     await Listing.deleteMany({});
-    initData.data = initData.data.map((obj)=>({...obj, owner: redirectUrl.id}));
+    initData.data = initData.data.map((obj)=>({...obj, owner: "66c99ab615e0c3c1fb8040eb"}));
     await Listing.insertMany(initData.data);
     console.log("data has been intialised")
 }

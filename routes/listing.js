@@ -11,11 +11,23 @@ const {isLoggedIn, isOwner, validateListing} = require("../middleware.js");
 //requiring the listings.js from controller file for making code more compact 
 const listingController = require("../controller/listings.js");
 
+//requiring the multer for uploading files
+const multer  = require('multer')
+
+const {storage} = require("../cloudConfig.js");
+
+const upload = multer({ storage });
+
+
 //router.route(path) its an instance of single route for root route
 router.route("/")
     .get(warpAsync(listingController.index)) //Index Route
-    .post(isLoggedIn, validateListing, warpAsync(listingController.createListing) //Create Route
-); 
+    .post(
+        isLoggedIn, 
+        // validateListing, 
+        upload.single('listing[image]'),
+        warpAsync(listingController.createListing)
+    ); //Create Route
 
 
 //New Route
