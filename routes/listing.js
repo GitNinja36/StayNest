@@ -36,7 +36,12 @@ router.get("/new", isLoggedIn, listingController.renderNewForm);
 //again router.route(path) its an instance of single route for "/listings/:id" route
 router.route("/:id")
     .get(warpAsync(listingController.showListing)) //Show Route
-    .put(isLoggedIn, isOwner, validateListing, warpAsync(listingController.udateListing)) //Update Route
+    .put(
+        isLoggedIn, 
+        isOwner, 
+        upload.single('listing[image]'), 
+        validateListing, 
+        warpAsync(listingController.udateListing)) //Update Route
     .delete(isLoggedIn, isOwner, warpAsync(listingController.destroyListing) //DELETE Route
 );
 
