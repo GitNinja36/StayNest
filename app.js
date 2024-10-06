@@ -77,9 +77,9 @@ const sessionOptions = {
 const flash = require('connect-flash');
 
 
-app.get("/", (req, res)=>{
-    res.send("this route is working");
-});
+// app.get("/", (req, res)=>{
+//     res.send("this route is working");
+// });
 
 
 app.use(session(sessionOptions));
