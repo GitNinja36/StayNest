@@ -49,6 +49,9 @@
     flex-wrap: wrap;
     justify-content: center;
     align-items: space-evenly;
+    position: sticky; /* Add this line */
+    bottom: 0; /* Add this line */
+    width: 100%;
 }
 /* .footer{
     position: sticky !important;

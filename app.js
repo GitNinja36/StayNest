@@ -63,9 +63,24 @@ const User = require("./models/user.js");
 //requring express-session
 const session = require('express-session');
 
+const MongoStore = require('connect-mongo');
 //defing sessionOption
+
+const store = MongoStore.create({
+    mongoUrl : dbUrl,
+    crypto : {
+        secret : process.env.SECRET,
+    },
+    touchAfter : 24 * 3600
+});
+
+store.on("error", ()=>{
+    console.log("Error in mongo session store", err);
+})
+
 const sessionOptions = {
-    secret: "mysupersecretstring",
+    store,
+    secret: process.env.SECRET,
     resave: false,
     saveUninitialized: true,
     cookie: { 
